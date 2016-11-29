@@ -139,3 +139,33 @@ function draw(){
 
 
 
+// Files stuff
+var activeModel = null;
+function setActiveModel(filename, data) {
+  console.log("Setting active model");
+  var model = new tr.Model();
+  var importOptions = new tr.importer.ImportOptions();
+  importOptions.pruneEmptyContainers = false;
+  importOptions.showImportWarnings = true;
+  importOptions.trackDetailedModelStats = true;
+  var i = new tr.importer.Import(model, importOptions);
+  i.importTracesWithProgressDialog([data]).then(
+    function() {
+      activeModel = model;
+    }.bind(this),
+    function(err) {
+      tr.ui.b.Overlay.showError('Trace import error: ' + err);
+      console.error(err);
+    });
+}
+
+function handleFileSelect(evt) {
+  console.log("Handling selected files");
+  var files = evt.target.files; // FileList object
+  var f = files[0];
+  tr.ui.b.readFile(f).then(res => {
+    setActiveModel(f.name, res);
+  })
+}
+
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
